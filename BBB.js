@@ -1,43 +1,43 @@
 const $ = new Env('步步寶')
 let notice = ''
+let CookieVal = $.getdata('bbb_ck')
+const notify = $.isNode() ? require("./sendNotify") : ``;
 
-// let CookieVal = $.getdata('bbb_ck')
-const notify = $.isNode() ? require('./sendNotify') : '';
+let BBBcookieArr = [], BBBcookieVal = ``, BBBcookie = [];
 
-var COOKIES_SPLIT = '\n'
-let BBBcookieArr = [], CookieVal = '', BBBcookie = [];
+COOKIES_SPLIT = ''
 
-if ($.isNode()) {
-    if (process.env.COOKIES_SPLIT) {
-        COOKIES_SPLIT = process.env.COOKIES_SPLIT;
-    };
-    console.log(`============ cookies分隔符为：${COOKIES_SPLIT} =============\n`);
-    if (process.env.BBB_COOKIE && process.env.BBB_COOKIE.indexOf(COOKIES_SPLIT) > -1) {
+if ($.isNode() && process.env.BBB_COOKIE) {
+    COOKIES_SPLIT = process.env.COOKIES_SPLIT || "\n";
+    console.log(`============ cookies分隔符为：${JSON.stringify(COOKIES_SPLIT)} =============\n`);
+    if (process.env.BBB_COOKIE &&
+        process.env.BBB_COOKIE.indexOf(COOKIES_SPLIT) > -1
+    ) {
         BBBcookie = process.env.BBB_COOKIE.split(COOKIES_SPLIT);
     } else {
-        BBBcookie = process.env.BBB_COOKIE.split()
-    };
+        BBBcookie = process.env.BBB_COOKIE.split();
+    }
+}
+if ($.isNode()) {
     Object.keys(BBBcookie).forEach((item) => {
         if (BBBcookie[item]) {
-            BBBcookieArr.push(BBBcookie[item])
+            BBBcookieArr.push(BBBcookie[item]);
         }
-    })
-    console.log(`============ 共${BBBcookieArr.length}个步步宝APP账号  =============\n`)
-    console.log(`============ 脚本执行-北京时间(UTC+8)：${new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString()}  =============\n`)
+    });
 } else {
-    BBBcookieArr.push($.getdata('bbb_ck'));
+    BBBcookieArr.push($.getdata("bbb_ck"));
 }
 
 
 
-if ($.isNode()) {
-    console.log(`============ 脚本执行-国际标准时间(UTC)：${new Date().toLocaleString()}  =============\n`)
-    console.log(`============ 脚本执行-北京时间(UTC+8)：${new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString()}  =============\n`)
-}
+// if ($.isNode()) {
+//     console.log(`============ 脚本执行-国际标准时间(UTC)：${new Date().toLocaleString()}  =============\n`)
+//     console.log(`============ 脚本执行-北京时间(UTC+8)：${new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString()}  =============\n`)
+// }
 
 
 
-now = new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000);
+// now = new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000);
 
 if (typeof $request !== 'undefined') {
     if ($request && $request.method != `OPTIONS` && $request.url.indexOf('user/profile') != -1) {
@@ -49,32 +49,38 @@ if (typeof $request !== 'undefined') {
     }
 } else {
     !(async () => {
-        if (!BBBcookieArr[0]) {
-            $.msg($.name, '提示：⚠️请点击前往获取cookie\n');
-            return;
-        } else {
-            console.log(`============ 共${BBBcookieArr.length}个${$.name}账号  =============\n`);
-            console.log(`==================脚本执行- 北京时间(UTC+8)：${new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000).toLocaleString()}=====================\n`)
-        }
-        for (let i = 0; i < BBBcookieArr.length; i++) {
-            CookieVal = BBBcookieArr[i]
-            await console.log(`-------------------------\n\n🔔开始运行【${$.name + (i + 1)}】`)
-            await userInfo()
-            await signIn()
-            await zaoWanDkInfo()
-            await sleepStatus()
-            await checkWaterNum()
-            await clickTaskStatus()
-            await watchTaskStatus()
-            await helpStatus()
-            await getNewsId()
-            await getQuestionId()
-            await checkHomeJin()
-            await showmsg()
-        }
+        await all();
+        await showmsg();
     })()
         .catch((e) => $.logErr(e))
         .finally(() => $.done())
+}
+
+
+async function all() {
+    if (!BBBcookieArr[0]) {
+        $.msg($.name, '提示：⚠️请点击重新获取cookie\n');
+        return;
+    }
+    for (let i = 0; i < BBBcookieArr.length; i++) {
+        BBBcookieVal = BBBcookieArr[i]
+        console.log(`================== 脚本执行 - 北京时间(UTC+8)：${new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000).toLocaleString()} =====================\n`);
+        console.log(`============ 共 ${BBBcookieArr.length} 个${$.name}账号=============\n`);
+        O = (`${$.name + (i + 1)}🔔`);
+        console.log(`-------------------------\n\n🔔开始运行【${$.name + (i + 1)}】`)
+        await userInfo()
+        await signIn()
+        await zaoWanDkInfo()
+        await sleepStatus()
+        await checkWaterNum()
+        await clickTaskStatus()
+        await watchTaskStatus()
+        await helpStatus()
+        await getNewsId()
+        await getQuestionId()
+        await guaList()
+        await checkHomeJin()
+    }
 }
 
 
@@ -222,6 +228,102 @@ function dkClick() {
     })
 }
 
+
+function guaList() {
+    return new Promise((resolve, reject) => {
+        let timestamp = new Date().getTime();
+        let gualist = {
+            url: `https://bububao.duoshoutuan.com/gua/gualist?`,
+            headers: JSON.parse(CookieVal),
+        }
+        $.post(gualist, async (error, response, data) => {
+            $.log('\n🔔開始查詢刮刮卡ID\n')
+            const guaid = JSON.parse(data)
+            $.log('\n🔔查詢刮刮卡ID成功,5s後開始刮卡\n')
+            if (guaid.ka > 0) {
+                for (guaId of guaid.list)
+                    if (guaId.is_ad == 0)
+                        guaID = guaId.id
+                await $.wait(5000)
+                await guaDet()
+            } else {
+                $.log('\n⚠️刮刮卡已用完,請明天再刮吧！\n')
+            }
+
+            resolve()
+        })
+    })
+}
+
+function guaDet() {
+    return new Promise((resolve, reject) => {
+        let timestamp = new Date().getTime();
+        let guadet = {
+            url: `https://bububao.duoshoutuan.com/gua/guadet?`,
+            headers: JSON.parse(CookieVal),
+            body: `gid=${guaID}&`
+        }
+        $.post(guadet, async (error, response, data) => {
+            $.log('\n🔔開始查詢刮卡簽名\n')
+            const guasign = JSON.parse(data)
+            if (response.statusCode == 200) {
+                $.log('\n🔔查詢刮卡簽名成功\n')
+                SIGN = guasign.sign
+                GLID = guasign.glid
+                $.log('\nsign: ' + SIGN + '\n')
+                $.log('\nglid: ' + GLID + '\n')
+                await guaPost()
+            }
+            resolve()
+        })
+    })
+}
+
+function guaPost() {
+    return new Promise((resolve, reject) => {
+        let timestamp = new Date().getTime();
+        let guapost = {
+            url: `https://bububao.duoshoutuan.com/gua/guapost?`,
+            headers: JSON.parse(CookieVal),
+            body: `sign=${SIGN}&gid=${guaID}&glid=${GLID}&`
+        }
+        $.post(guapost, async (error, response, data) => {
+            $.log('\n🔔開始刮卡\n')
+            const guaka = JSON.parse(data)
+            if (typeof guaka.jf === 'number') {
+                guaStr = guaka.nonce_str
+                $.log('\n🎉刮卡成功\n恭喜您刮出' + guaka.tp + '張相同圖案\n金幣+ ' + guaka.jf + '\n等待45s後開始翻倍刮卡獎勵')
+                await $.wait(45000)
+                await guaDouble()
+            }
+            resolve()
+        })
+    })
+}
+
+
+function guaDouble() {
+    return new Promise((resolve, reject) => {
+        let timestamp = new Date().getTime();
+        let guadouble = {
+            url: `https://bububao.duoshoutuan.com/you/callback`,
+            headers: JSON.parse(CookieVal),
+            body: `nonce_str=${guaStr}&tid=6&pos=1&`,
+        }
+        $.post(guadouble, async (error, response, data) => {
+            const guaka2 = JSON.parse(data)
+            $.log('\n🔔開始領取刮卡翻倍獎勵\n')
+            if (guaka2.code == 1) {
+                $.log('\n🎉刮卡翻倍成功,等待2s後查詢下一張刮刮卡ID\n')
+                await $.wait(2000)
+                await guaList()
+            } else {
+                $.log('\n⚠️刮卡翻倍失敗:' + guaka2.msg + '\n')
+            }
+            resolve()
+        })
+    })
+}
 
 
 
