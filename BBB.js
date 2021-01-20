@@ -2,7 +2,7 @@ const $ = new Env('步步寶')
 let notice = ''
 
 // let CookieVal = $.getdata('bbb_ck')
-// const notify = $.isNode() ? require('./sendNotify') : '';
+const notify = $.isNode() ? require('./sendNotify') : '';
 
 var COOKIES_SPLIT = '\n'
 let BBBcookieArr = [], CookieVal = '', BBBcookie = [];
